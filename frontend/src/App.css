@@ -1,0 +1,351 @@
+.select-screen {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 64px 24px;
+  text-align: center;
+}
+
+.select-screen h1 {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.select-sub {
+  color: var(--text-dim);
+  margin-bottom: 32px;
+}
+
+.character-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.character-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 20px;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.character-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.character-name {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.character-desc {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+.hint {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+}
+
+.hint--error {
+  color: #f87171;
+}
+
+.negotiation-screen {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 24px;
+  height: 100vh;
+  box-sizing: border-box;
+}
+
+.side-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.avatar-panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 24px 16px;
+  text-align: center;
+}
+
+.avatar-canvas {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  background: #1a1a21;
+}
+
+.avatar-canvas canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.avatar-canvas-hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 12px;
+  font-size: 12px;
+  color: var(--text-dim);
+  background: #1a1a21;
+}
+
+/* Пауза Лайтмана */
+.avatar-canvas--paused canvas {
+  filter: saturate(0.6) brightness(0.85);
+}
+
+.pause-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 60px 20px rgba(0, 0, 0, 0.55);
+  background: radial-gradient(circle at 50% 45%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.35) 100%);
+}
+
+.pause-label {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(20, 14, 9, 0.75);
+  color: #f5eee1;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 5px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.pause-label--sub {
+  top: auto;
+  bottom: 8px;
+  font-weight: 400;
+  font-size: 10.5px;
+  opacity: 0.85;
+}
+
+.hotspot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  animation: hotspot-pulse 1.6s ease-in-out infinite;
+}
+
+.hotspot-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #ffb454;
+  box-shadow: 0 0 0 4px rgba(255, 180, 84, 0.25);
+}
+
+.hotspot-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #fff8ee;
+  background: rgba(20, 14, 9, 0.8);
+  padding: 3px 7px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+@keyframes hotspot-pulse {
+  0%, 100% { opacity: 0.75; }
+  50% { opacity: 1; }
+}
+
+.pause-hint {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.02em;
+}
+
+.avatar-name {
+  font-weight: 600;
+}
+
+.avatar-emotion {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+
+.avatar-leak-tag {
+  font-size: 11px;
+  color: #fbbf24;
+}
+
+.avatar-au {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-family: monospace;
+  margin-top: 6px;
+}
+
+.batna-gauge {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.batna-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.batna-track {
+  position: relative;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #ef4444, #3f3f46 50%, #4ade80);
+}
+
+.batna-fill {
+  display: none;
+}
+
+.batna-marker {
+  position: absolute;
+  top: -4px;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--bg);
+  transition: left 0.4s;
+}
+
+.batna-value {
+  text-align: center;
+  font-family: monospace;
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 10px;
+}
+
+.main-panel {
+  min-height: 0;
+}
+
+.chat-window {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.chat-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chat-bubble {
+  max-width: 75%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.chat-bubble--player {
+  align-self: flex-end;
+  background: var(--accent);
+  color: #0b0b0f;
+}
+
+.chat-bubble--opponent {
+  align-self: flex-start;
+  background: #23232b;
+}
+
+.chat-bubble--thinking {
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.chat-bubble-tag {
+  margin-top: 6px;
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+.chat-bubble-tag--trigger {
+  color: #fbbf24;
+}
+
+.chat-input {
+  display: flex;
+  gap: 8px;
+  padding: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.chat-input input {
+  flex: 1;
+  background: #17171c;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: inherit;
+  font-size: 14px;
+}
+
+.chat-input button {
+  background: var(--accent);
+  color: #0b0b0f;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.chat-input button:disabled,
+.chat-input input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

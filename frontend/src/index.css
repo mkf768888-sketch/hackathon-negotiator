@@ -1,0 +1,35 @@
+:root {
+  --bg: #0f0f13;
+  --panel: #1a1a21;
+  --line: #2a2a34;
+  --text: #e5e5ea;
+  --text-dim: #8b8b96;
+  --accent: #c084fc;
+
+  font: 15px/1.5 system-ui, "Segoe UI", Roboto, sans-serif;
+  color-scheme: dark;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+#root {
+  min-height: 100svh;
+}
+
+h1, h2, h3 {
+  margin: 0;
+  color: var(--text);
+}
+
+button {
+  font: inherit;
+}

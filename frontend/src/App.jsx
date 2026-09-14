@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { fetchCharacters, startSession, connectNegotiation } from "./api";
+import { fetchCharacters, startSession, connectNegotiation, fetchDebrief } from "./api";
 import CharacterSelect from "./components/CharacterSelect";
 import ChatWindow from "./components/ChatWindow";
 import AvatarHead from "./components/AvatarHead";
 import BatnaGauge from "./components/BatnaGauge";
+import DebriefPanel from "./components/DebriefPanel";
+import { speak, stopSpeaking, speechOutputSupported } from "./voice";
 import "./App.css";
 
 export default function App() {
@@ -18,7 +20,14 @@ export default function App() {
   const [waiting, setWaiting] = useState(false);
   const [wsReady, setWsReady] = useState(false);
   const [paused, setPaused] = useState(false);
+  const [voiceOn, setVoiceOn] = useState(speechOutputSupported);
+  const [debrief, setDebrief] = useState(null);
+  const [loadingDebrief, setLoadingDebrief] = useState(false);
+  const [debriefError, setDebriefError] = useState(null);
   const connRef = useRef(null);
+  const voiceOnRef = useRef(voiceOn);
+  useEffect(() => { voiceOnRef.current = voiceOn; }, [voiceOn]);
+  useEffect(() => { if (!voiceOn) stopSpeaking(); }, [voiceOn]);
 
   // «Пауза Лайтмана» — пробел останавливает поток и подсвечивает горячие точки лица оппонента.
   useEffect(() => {
@@ -48,6 +57,7 @@ export default function App() {
       setSession(data);
       setEmotion(data.opening.hidden_emotion);
       setBatna(data.opening.batna_cumulative);
+      if (voiceOnRef.current) speak(data.opening.text);
       setMessages([
         {
           role: "opponent",
@@ -65,6 +75,7 @@ export default function App() {
           setWaiting(false);
           setEmotion(turn.hidden_emotion);
           setBatna(turn.batna_cumulative);
+          if (voiceOnRef.current) speak(turn.text);
           setMessages((prev) => [
             ...prev,
             {
@@ -86,6 +97,31 @@ export default function App() {
     setMessages((prev) => [...prev, { role: "player", text }]);
     setWaiting(true);
     connRef.current?.send(text);
+  }
+
+  async function handleFinish() {
+    if (!session) return;
+    setDebriefError(null);
+    setLoadingDebrief(true);
+    try {
+      const data = await fetchDebrief(session.session_id);
+      setDebrief(data);
+    } catch (e) {
+      setDebriefError(e.message);
+    } finally {
+      setLoadingDebrief(false);
+    }
+  }
+
+  function handleRestart() {
+    connRef.current?.close();
+    connRef.current = null;
+    setSession(null);
+    setMessages([]);
+    setEmotion(null);
+    setBatna(0);
+    setDebrief(null);
+    setDebriefError(null);
   }
 
   useEffect(() => () => connRef.current?.close(), []);
@@ -112,11 +148,24 @@ export default function App() {
         />
         <BatnaGauge value={batna} />
         <div className="pause-hint">Пробел — {paused ? "продолжить" : "Пауза Лайтмана"}</div>
+        {speechOutputSupported && (
+          <label className="voice-toggle">
+            <input type="checkbox" checked={voiceOn} onChange={(e) => setVoiceOn(e.target.checked)} />
+            🔊 Озвучивать оппонента
+          </label>
+        )}
         {!wsReady && <div className="hint hint--error">Соединение с оппонентом потеряно</div>}
+        <button className="finish-btn" onClick={handleFinish} disabled={loadingDebrief}>
+          {loadingDebrief ? "Считаю разбор…" : "Завершить и посмотреть разбор"}
+        </button>
+        {debriefError && <div className="hint hint--error">{debriefError}</div>}
       </aside>
       <main className="main-panel">
         <ChatWindow messages={messages} waiting={waiting} disabled={!wsReady || waiting || paused} onSend={handleSend} />
       </main>
+      {debrief && (
+        <DebriefPanel debrief={debrief} characterName={session.character_name} onRestart={handleRestart} />
+      )}
     </div>
   );
 }

@@ -1,8 +1,27 @@
 import { useEffect, useRef, useState } from "react";
+import { createSpeechInput, speechInputSupported } from "../voice";
 
 export default function ChatWindow({ messages, waiting, disabled, onSend }) {
   const [draft, setDraft] = useState("");
+  const [listening, setListening] = useState(false);
   const listRef = useRef(null);
+  const speechRef = useRef(null);
+
+  function toggleListening() {
+    if (listening) {
+      speechRef.current?.stop();
+      return;
+    }
+    const speech = createSpeechInput({
+      onResult: (text) => setDraft((prev) => (prev ? `${prev} ${text}` : text)),
+      onStart: () => setListening(true),
+      onEnd: () => setListening(false),
+      onError: () => setListening(false),
+    });
+    if (!speech) return;
+    speechRef.current = speech;
+    speech.start();
+  }
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
@@ -35,10 +54,21 @@ export default function ChatWindow({ messages, waiting, disabled, onSend }) {
         )}
       </div>
       <form className="chat-input" onSubmit={submit}>
+        {speechInputSupported && (
+          <button
+            type="button"
+            className={"mic-btn" + (listening ? " mic-btn--active" : "")}
+            onClick={toggleListening}
+            disabled={disabled}
+            title={listening ? "Слушаю… нажми, чтобы остановить" : "Голосовой ввод"}
+          >
+            {listening ? "🔴" : "🎤"}
+          </button>
+        )}
         <input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          placeholder={disabled ? "Соединение…" : "Ваша реплика…"}
+          placeholder={listening ? "Слушаю…" : disabled ? "Соединение…" : "Ваша реплика…"}
           disabled={disabled}
         />
         <button type="submit" disabled={disabled || !draft.trim()}>

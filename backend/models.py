@@ -38,3 +38,24 @@ class StartSessionResponse(BaseModel):
     character: str
     character_name: str
     opening: TurnResponse
+
+
+class NegotiationScore(BaseModel):
+    """Оси радар-чарта «разбора полётов» — все от 0 до 1, где 1 всегда означает
+    «хорошо» (согласованное направление, чтобы полигон на радаре читался интуитивно)."""
+    goal_completion: float = Field(ge=0, le=1, description="Достигнут ли выгодный игроку исход")
+    batna_defense: float = Field(ge=0, le=1, description="Насколько хорошо защищена своя BATNA/не слился по цене")
+    information_discipline: float = Field(ge=0, le=1, description="Не слил ли лишнюю информацию раньше времени")
+    rapport: float = Field(ge=0, le=1, description="Качество выстроенных отношений с оппонентом")
+    tactic_variety: float = Field(ge=0, le=1, description="Разнообразие применённых техник переговоров")
+    emotional_composure: float = Field(ge=0, le=1, description="Собственное самообладание + считывание чужих утечек")
+    summary: str = ""
+    strengths: list[str] = Field(default_factory=list)
+    improvements: list[str] = Field(default_factory=list)
+
+
+class DebriefResponse(BaseModel):
+    session_id: str
+    rounds: int
+    final_batna: float
+    score: NegotiationScore

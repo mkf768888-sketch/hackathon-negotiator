@@ -17,6 +17,12 @@ export async function startSession(character) {
   return res.json();
 }
 
+export async function fetchDebrief(sessionId) {
+  const res = await fetch(`${API_BASE}/session/${sessionId}/debrief`);
+  if (!res.ok) throw new Error(`debrief: HTTP ${res.status}`);
+  return res.json();
+}
+
 export function connectNegotiation(sessionId, { onTurn, onOpen, onClose, onError }) {
   const ws = new WebSocket(`${WS_BASE}/ws/${sessionId}`);
   ws.onopen = () => onOpen?.();

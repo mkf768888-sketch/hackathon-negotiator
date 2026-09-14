@@ -9,9 +9,9 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from characters import CHARACTERS, FACS_MAPPING
-from engine import generate_turn, opening_turn
+from engine import generate_turn, opening_turn, generate_debrief
 from llm_router import DEEPSEEK_API_KEY, ANTHROPIC_API_KEY
-from models import StartSessionRequest, StartSessionResponse, TurnResponse
+from models import StartSessionRequest, StartSessionResponse, TurnResponse, DebriefResponse
 from session_store import create_session, get_session
 
 logging.basicConfig(level=logging.INFO)
@@ -74,6 +74,21 @@ def start_session(req: StartSessionRequest):
     )
 
 
+@app.get("/session/{session_id}/debrief", response_model=DebriefResponse)
+async def debrief(session_id: str):
+    session = get_session(session_id)
+    if session is None:
+        raise HTTPException(status_code=404, detail="session not found")
+
+    score = await generate_debrief(session)
+    return DebriefResponse(
+        session_id=session_id,
+        rounds=session.round,
+        final_batna=session.batna_cumulative,
+        score=score,
+    )
+
+
 @app.websocket("/ws/{session_id}")
 async def ws_negotiate(websocket: WebSocket, session_id: str):
     session = get_session(session_id)
@@ -102,6 +117,7 @@ async def ws_negotiate(websocket: WebSocket, session_id: str):
             session.history.append(("Игрок", player_text))
             session.history.append(("Оппонент", result.text))
             session.round += 1
+            session.record_turn(player_text, result, session.batna_cumulative)
 
             response = TurnResponse(
                 **result.model_dump(),

@@ -57,7 +57,7 @@ def start_session(req: StartSessionRequest):
     if req.character not in CHARACTERS:
         raise HTTPException(status_code=400, detail="unknown character")
 
-    session = create_session(req.character)
+    session = create_session(req.character, req.context)
     opening = opening_turn(req.character)
 
     return StartSessionResponse(

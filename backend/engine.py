@@ -80,7 +80,7 @@ def opening_turn(character_key: str) -> TurnResult:
 
 
 async def generate_turn(session: Session, player_text: str) -> tuple[TurnResult, str]:
-    system_prompt = character_system_prompt(session.character)
+    system_prompt = character_system_prompt(session.character, session.context)
     trigger_note = (
         "Триггер-событие уже было использовано в этой сессии — НЕ используй его снова, верни trigger_event: null."
         if session.trigger_used else

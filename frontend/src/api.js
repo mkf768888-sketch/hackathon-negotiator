@@ -7,11 +7,11 @@ export async function fetchCharacters() {
   return res.json();
 }
 
-export async function startSession(character) {
+export async function startSession(character, context) {
   const res = await fetch(`${API_BASE}/session/start`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ character }),
+    body: JSON.stringify({ character, context: context || null }),
   });
   if (!res.ok) throw new Error(`session/start: HTTP ${res.status}`);
   return res.json();

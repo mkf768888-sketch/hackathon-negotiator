@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { fetchCharacters, startSession, connectNegotiation, fetchDebrief } from "./api";
 import CharacterSelect from "./components/CharacterSelect";
+import AdminConfigPanel from "./components/AdminConfigPanel";
 import ChatWindow from "./components/ChatWindow";
 import AvatarHead from "./components/AvatarHead";
 import BatnaGauge from "./components/BatnaGauge";
@@ -24,6 +25,7 @@ export default function App() {
   const [debrief, setDebrief] = useState(null);
   const [loadingDebrief, setLoadingDebrief] = useState(false);
   const [debriefError, setDebriefError] = useState(null);
+  const [adminContext, setAdminContext] = useState(null);
   const connRef = useRef(null);
   const voiceOnRef = useRef(voiceOn);
   useEffect(() => { voiceOnRef.current = voiceOn; }, [voiceOn]);
@@ -53,7 +55,7 @@ export default function App() {
   async function handleSelect(characterKey) {
     setLoadError(null);
     try {
-      const data = await startSession(characterKey);
+      const data = await startSession(characterKey, adminContext);
       setSession(data);
       setEmotion(data.opening.hidden_emotion);
       setBatna(data.opening.batna_cumulative);
@@ -128,12 +130,15 @@ export default function App() {
 
   if (!session) {
     return (
-      <CharacterSelect
-        characters={characters}
-        loading={loadingCharacters}
-        error={loadError}
-        onSelect={handleSelect}
-      />
+      <>
+        <AdminConfigPanel onChange={setAdminContext} />
+        <CharacterSelect
+          characters={characters}
+          loading={loadingCharacters}
+          error={loadError}
+          onSelect={handleSelect}
+        />
+      </>
     );
   }
 

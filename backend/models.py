@@ -26,11 +26,23 @@ class TurnResponse(TurnResult):
     source: Literal["claude", "deepseek_fallback", "hardcoded_fallback"] = "claude"
 
 
+class ContextConfig(BaseModel):
+    """Настройки администратора — контекст, под который подстраивается сценарий
+    переговоров (ТЗ, п. 2 «Конфигурируемость под контекст»). Все поля опциональны:
+    не заполненное поле просто не участвует в промпте, а не подставляет дефолт."""
+    sphere: Optional[str] = Field(default=None, max_length=200, description="Сфера и тема переговоров")
+    difficulty: Optional[Literal["easy", "medium", "hard"]] = None
+    tone: Optional[str] = Field(default=None, max_length=200, description="Тон собеседника")
+    opponent_role: Optional[str] = Field(default=None, max_length=200, description="Роль оппонента")
+    opponent_goals: Optional[str] = Field(default=None, max_length=500, description="Цели оппонента")
+
+
 class StartSessionRequest(BaseModel):
     character: Literal[
         "torgash", "burokrat", "partner", "molchun", "panicker",
         "znatok", "praktik", "zhertva", "idealist",
     ]
+    context: Optional[ContextConfig] = None
 
 
 class StartSessionResponse(BaseModel):

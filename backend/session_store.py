@@ -1,11 +1,15 @@
 import uuid
 from dataclasses import dataclass, field
+from typing import Optional
+
+from models import ContextConfig
 
 
 @dataclass
 class Session:
     session_id: str
     character: str
+    context: Optional[ContextConfig] = None  # настройки администратора для этой сессии
     history: list[tuple[str, str]] = field(default_factory=list)  # [("Игрок"/"Оппонент", text), ...]
     round: int = 0
     batna_cumulative: float = 0.0
@@ -49,9 +53,9 @@ class Session:
 _sessions: dict[str, Session] = {}
 
 
-def create_session(character: str) -> Session:
+def create_session(character: str, context: Optional[ContextConfig] = None) -> Session:
     session_id = uuid.uuid4().hex[:12]
-    session = Session(session_id=session_id, character=character)
+    session = Session(session_id=session_id, character=character, context=context)
     _sessions[session_id] = session
     return session
 

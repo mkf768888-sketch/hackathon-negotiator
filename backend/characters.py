@@ -275,6 +275,45 @@ FACS_MAPPING = [
 ]
 
 
-def character_system_prompt(character_key: str) -> str:
+DIFFICULTY_NOTES = {
+    "easy": "Уступай легче, чем прописано в характере: снижай порог, после которого приоткрываешь "
+            "скрытые интересы, и не давай форс-мажору дополнительно всё усложнять.",
+    "medium": "Держись характера и болевых точек ровно так, как они описаны — без поблажек и без "
+              "искусственного усложнения.",
+    "hard": "Будь жёстче, чем прописано по умолчанию: раскрывай скрытые интересы только в ответ на "
+            "действительно точные и уместные вопросы, дольше держи давление, охотнее используй "
+            "болевую точку персонажа.",
+}
+
+
+def build_context_block(context) -> str:
+    """Текстовый блок с настройками администратора — вплетается в системный промпт
+    персонажа, не переопределяя его характер и скрытые интересы, а окрашивая их под
+    заданный контекст (ТЗ, п. 2 «Конфигурируемость под контекст»)."""
+    if context is None:
+        return ""
+
+    lines = []
+    if context.sphere:
+        lines.append(f"- Сфера и тема переговоров: {context.sphere}. Встраивай в реплики реалии "
+                      f"именно этой сферы (термины, типичные аргументы, ставки).")
+    if context.tone:
+        lines.append(f"- Тон собеседника: {context.tone}. Держи этот тон в манере речи и лексике, "
+                      f"не ломая при этом базовый характер персонажа.")
+    if context.opponent_role:
+        lines.append(f"- Роль оппонента в этих переговорах: {context.opponent_role}.")
+    if context.opponent_goals:
+        lines.append(f"- Явные (не скрытые) цели оппонента в этой сделке: {context.opponent_goals}.")
+    if context.difficulty and context.difficulty in DIFFICULTY_NOTES:
+        lines.append(f"- Сложность «{context.difficulty}»: {DIFFICULTY_NOTES[context.difficulty]}")
+
+    if not lines:
+        return ""
+
+    return "\n\nНАСТРОЙКИ КОНТЕКСТА (заданы администратором для этой сессии):\n" + "\n".join(lines)
+
+
+def character_system_prompt(character_key: str, context=None) -> str:
     char = CHARACTERS[character_key]
-    return f"{BASE_RULES}\n\n{char['prompt']}\n\n{JSON_SCHEMA_INSTRUCTIONS}"
+    context_block = build_context_block(context)
+    return f"{BASE_RULES}\n\n{char['prompt']}{context_block}\n\n{JSON_SCHEMA_INSTRUCTIONS}"

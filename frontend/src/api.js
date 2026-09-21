@@ -7,10 +7,12 @@ export async function fetchCharacters() {
   return res.json();
 }
 
-export async function startSession(character, context) {
+export async function startSession(character, context, accessToken) {
+  const headers = { "Content-Type": "application/json" };
+  if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
   const res = await fetch(`${API_BASE}/session/start`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify({ character, context: context || null }),
   });
   if (!res.ok) throw new Error(`session/start: HTTP ${res.status}`);

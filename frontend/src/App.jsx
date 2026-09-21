@@ -4,8 +4,12 @@ import CharacterSelect from "./components/CharacterSelect";
 import AdminConfigPanel from "./components/AdminConfigPanel";
 import ChatWindow from "./components/ChatWindow";
 import AvatarHead from "./components/AvatarHead";
+import AvatarVideo from "./components/AvatarVideo";
 import BatnaGauge from "./components/BatnaGauge";
 import DebriefPanel from "./components/DebriefPanel";
+import AuthScreen from "./components/AuthScreen";
+import CompanyDashboard from "./components/CompanyDashboard";
+import { supabase, supabaseEnabled } from "./supabaseClient";
 import { speak, stopSpeaking, speechOutputSupported } from "./voice";
 import "./App.css";
 
@@ -13,6 +17,20 @@ export default function App() {
   const [characters, setCharacters] = useState([]);
   const [loadingCharacters, setLoadingCharacters] = useState(true);
   const [loadError, setLoadError] = useState(null);
+
+  // Аккаунты компаний — активны только если заданы VITE_SUPABASE_* (см. supabaseClient.js).
+  // Без них authSession всегда null, authSkipped неважен, и ниже всё ведёт себя
+  // ровно как до этой фичи: сразу экран выбора персонажа, без входа.
+  const [authSession, setAuthSession] = useState(null);
+  const [authSkipped, setAuthSkipped] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(false);
+
+  useEffect(() => {
+    if (!supabaseEnabled) return;
+    supabase.auth.getSession().then(({ data }) => setAuthSession(data.session));
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => setAuthSession(s));
+    return () => sub.subscription.unsubscribe();
+  }, []);
 
   const [session, setSession] = useState(null); // {session_id, character, character_name}
   const [messages, setMessages] = useState([]);
@@ -55,7 +73,7 @@ export default function App() {
   async function handleSelect(characterKey) {
     setLoadError(null);
     try {
-      const data = await startSession(characterKey, adminContext);
+      const data = await startSession(characterKey, adminContext, authSession?.access_token);
       setSession(data);
       setEmotion(data.opening.hidden_emotion);
       setBatna(data.opening.batna_cumulative);
@@ -129,8 +147,35 @@ export default function App() {
   useEffect(() => () => connRef.current?.close(), []);
 
   if (!session) {
+    if (supabaseEnabled && !authSession && !authSkipped) {
+      return <AuthScreen onAuthed={setAuthSession} onSkip={() => setAuthSkipped(true)} />;
+    }
+    if (supabaseEnabled && authSession && showDashboard) {
+      return (
+        <CompanyDashboard
+          onStartSession={() => setShowDashboard(false)}
+          onLogout={async () => {
+            await supabase.auth.signOut();
+            setShowDashboard(false);
+          }}
+        />
+      );
+    }
     return (
       <>
+        {supabaseEnabled && authSession && (
+          <button
+            type="button"
+            onClick={() => setShowDashboard(true)}
+            style={{
+              position: "fixed", top: 16, right: 16, zIndex: 10,
+              background: "var(--panel)", color: "inherit", border: "1px solid #2a2a33",
+              borderRadius: 8, padding: "8px 14px", cursor: "pointer", fontSize: 13,
+            }}
+          >
+            История сессий компании
+          </button>
+        )}
         <AdminConfigPanel onChange={setAdminContext} />
         <CharacterSelect
           characters={characters}
@@ -145,12 +190,16 @@ export default function App() {
   return (
     <div className="negotiation-screen">
       <aside className="side-panel">
-        <AvatarHead
-          emotion={emotion}
-          characterName={session.character_name}
-          characterKey={session.character}
-          paused={paused}
-        />
+        {import.meta.env.VITE_AVATAR_MODE === "video" ? (
+          <AvatarVideo emotion={emotion} characterName={session.character_name} paused={paused} />
+        ) : (
+          <AvatarHead
+            emotion={emotion}
+            characterName={session.character_name}
+            characterKey={session.character}
+            paused={paused}
+          />
+        )}
         <BatnaGauge value={batna} />
         <div className="pause-hint">Пробел — {paused ? "продолжить" : "Пауза Лайтмана"}</div>
         {speechOutputSupported && (

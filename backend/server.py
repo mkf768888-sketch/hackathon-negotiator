@@ -5,14 +5,17 @@ from dotenv import load_dotenv
 
 load_dotenv()  # must run before llm_router is imported — it reads keys from os.getenv() at import time
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
+from typing import Optional
 
+from auth import user_id_from_bearer
 from characters import CHARACTERS, FACS_MAPPING
 from engine import generate_turn, opening_turn, generate_debrief
 from llm_router import DEEPSEEK_API_KEY, ANTHROPIC_API_KEY
 from models import StartSessionRequest, StartSessionResponse, TurnResponse, DebriefResponse
 from session_store import create_session, get_session
+from supabase_store import save_session_result
 
 logging.basicConfig(level=logging.INFO)
 
@@ -53,11 +56,12 @@ def facs_mapping():
 
 
 @app.post("/session/start", response_model=StartSessionResponse)
-def start_session(req: StartSessionRequest):
+def start_session(req: StartSessionRequest, authorization: Optional[str] = Header(default=None)):
     if req.character not in CHARACTERS:
         raise HTTPException(status_code=400, detail="unknown character")
 
-    session = create_session(req.character, req.context)
+    user_id = user_id_from_bearer(authorization)
+    session = create_session(req.character, req.context, user_id=user_id)
     opening = opening_turn(req.character)
 
     return StartSessionResponse(
@@ -81,6 +85,10 @@ async def debrief(session_id: str):
         raise HTTPException(status_code=404, detail="session not found")
 
     score = await generate_debrief(session)
+    try:
+        save_session_result(session, score, session.user_id)
+    except Exception:
+        logging.getLogger(__name__).exception("save_session_result crashed (non-fatal)")
     return DebriefResponse(
         session_id=session_id,
         rounds=session.round,

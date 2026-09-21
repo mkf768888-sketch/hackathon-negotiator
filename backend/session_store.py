@@ -15,6 +15,7 @@ class Session:
     batna_cumulative: float = 0.0
     trigger_used: bool = False
     turns: list[dict] = field(default_factory=list)  # полные записи ходов для «разбора полётов»
+    user_id: Optional[str] = None  # sub из Supabase JWT, если игрок вошёл в аккаунт компании
 
     def history_text(self, last_n: int = 10) -> str:
         recent = self.history[-last_n * 2:]
@@ -53,9 +54,9 @@ class Session:
 _sessions: dict[str, Session] = {}
 
 
-def create_session(character: str, context: Optional[ContextConfig] = None) -> Session:
+def create_session(character: str, context: Optional[ContextConfig] = None, user_id: Optional[str] = None) -> Session:
     session_id = uuid.uuid4().hex[:12]
-    session = Session(session_id=session_id, character=character, context=context)
+    session = Session(session_id=session_id, character=character, context=context, user_id=user_id)
     _sessions[session_id] = session
     return session
 

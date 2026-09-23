@@ -2,6 +2,8 @@
 
 Три части: бэкенд (мозги, ИИ) → Render. Сайт (то, что видит пользователь) → Vercel. Аккаунты компаний (опционально) → Supabase.
 
+**Известная проблема:** если Vercel при нажатии Redeploy пишет «Git author ... must have access to the team's projects... Hobby teams do not support collaboration» — это значит, что у git на компьютере автоматически выставился случайный email (не привязанный к аккаунту GitHub/Vercel), и Vercel принимает коммит за постороннего. Чинится один раз командой `git config --global user.email "ваш-настоящий-email"` — новые коммиты после этого пройдут нормально.
+
 ## 1. Бэкенд на Render
 
 1. Зайти на [render.com](https://render.com), зарегистрироваться (можно через GitHub).

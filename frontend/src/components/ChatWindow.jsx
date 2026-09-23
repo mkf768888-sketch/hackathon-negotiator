@@ -41,6 +41,9 @@ export default function ChatWindow({ messages, waiting, disabled, onSend }) {
         {messages.map((m, i) => (
           <div key={i} className={`chat-bubble chat-bubble--${m.role}`}>
             <div className="chat-bubble-text">{m.text}</div>
+            {m.tactic && m.tactic !== "Без выраженной тактики" && (
+              <div className="chat-bubble-tag chat-bubble-tag--tactic">🎯 {m.tactic}</div>
+            )}
             {m.hidden_interest_revealed && (
               <div className="chat-bubble-tag">💡 приоткрыт интерес: {m.hidden_interest_revealed}</div>
             )}

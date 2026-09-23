@@ -373,6 +373,10 @@
   color: #fbbf24;
 }
 
+.chat-bubble-tag--tactic {
+  color: var(--accent);
+}
+
 .chat-input {
   display: flex;
   gap: 8px;
@@ -496,6 +500,12 @@
   color: var(--text-dim);
   font-size: 13px;
   margin-bottom: 16px;
+}
+
+.debrief-sub--reveal {
+  color: var(--accent);
+  font-style: italic;
+  margin-top: -12px;
 }
 
 .radar-svg {

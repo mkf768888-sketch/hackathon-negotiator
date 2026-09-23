@@ -31,12 +31,14 @@ class Session:
             "hidden_emotion": result.hidden_emotion.model_dump(),
             "trigger_event": result.trigger_event,
             "hidden_interest_revealed": result.hidden_interest_revealed,
+            "player_tactic": result.player_tactic,
         })
 
     def transcript_for_debrief(self) -> str:
         lines = []
         for t in self.turns:
-            lines.append(f"[Раунд {t['round']}] Игрок: {t['player_text']}")
+            tactic_note = f" [тактика: {t['player_tactic']}]" if t.get("player_tactic") else ""
+            lines.append(f"[Раунд {t['round']}] Игрок: {t['player_text']}{tactic_note}")
             emo = t["hidden_emotion"]
             leak = " (СКРЫТАЯ УТЕЧКА, не совпадает со словами)" if emo.get("leak_type") == "incongruent_with_text" else ""
             lines.append(

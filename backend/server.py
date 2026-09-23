@@ -94,6 +94,7 @@ async def debrief(session_id: str):
         rounds=session.round,
         final_batna=session.batna_cumulative,
         score=score,
+        character_reservation_value=CHARACTERS[session.character]["reservation_value"],
     )
 
 

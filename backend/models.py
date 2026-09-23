@@ -17,6 +17,7 @@ class TurnResult(BaseModel):
     batna_shift: float = 0.0
     trigger_event: Optional[str] = None
     hidden_interest_revealed: Optional[str] = None
+    player_tactic: Optional[str] = None
 
 
 class TurnResponse(TurnResult):
@@ -71,3 +72,7 @@ class DebriefResponse(BaseModel):
     rounds: int
     final_batna: float
     score: NegotiationScore
+    character_reservation_value: float = Field(
+        description="Реальный порог BATNA персонажа на той же шкале, что и final_batna "
+                     "(-1..1) — раскрывается игроку только здесь, после сессии, не во время игры."
+    )

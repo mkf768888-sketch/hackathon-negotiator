@@ -175,9 +175,15 @@ async def generate_debrief(session: Session) -> NegotiationScore:
         "(указаны ниже) — сравни, что игрок реально выяснил и чего добился, с тем, что было "
         "объективно возможно. Будь честным и конкретным, не льсти."
     )
+    reservation = char["reservation_value"]
     user_message = f"""Персонаж оппонента: {char['name']}
 Его реальные скрытые интересы и BATNA (для твоей оценки, игрок этого не видел):
 {char['prompt']}
+
+Реальный порог BATNA персонажа на шкале -1..1 (та же шкала, что и итоговый баланс): {reservation:+.2f}.
+Используй это число как якорь для batna_defense и goal_completion: если финальный баланс игрока
+({session.batna_cumulative:+.2f}) заметно ниже этого порога — игрок сдал больше, чем реально мог себе
+позволить оппонент; если выше — добился хорошего результата.
 
 Полная стенограмма сессии ({session.round} раунд(ов), финальный баланс BATNA игрока: {session.batna_cumulative:+.2f}):
 {session.transcript_for_debrief()}

@@ -96,15 +96,26 @@ export default function App() {
           setEmotion(turn.hidden_emotion);
           setBatna(turn.batna_cumulative);
           if (voiceOnRef.current) speak(turn.text);
-          setMessages((prev) => [
-            ...prev,
-            {
-              role: "opponent",
-              text: turn.text,
-              hidden_interest_revealed: turn.hidden_interest_revealed,
-              trigger_event: turn.trigger_event,
-            },
-          ]);
+          setMessages((prev) => {
+            // player_tactic описывает реплику ИГРОКА, которая предшествовала этому ходу —
+            // привязываем её к последнему сообщению игрока, а не к новой реплике оппонента.
+            const withTactic = [...prev];
+            for (let i = withTactic.length - 1; i >= 0; i--) {
+              if (withTactic[i].role === "player") {
+                withTactic[i] = { ...withTactic[i], tactic: turn.player_tactic };
+                break;
+              }
+            }
+            return [
+              ...withTactic,
+              {
+                role: "opponent",
+                text: turn.text,
+                hidden_interest_revealed: turn.hidden_interest_revealed,
+                trigger_event: turn.trigger_event,
+              },
+            ];
+          });
         },
       });
       connRef.current = conn;

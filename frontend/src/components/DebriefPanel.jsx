@@ -27,7 +27,8 @@ function ringPath(total, fraction) {
 
 export default function DebriefPanel({ debrief, characterName, onRestart }) {
   if (!debrief) return null;
-  const { score, rounds, final_batna } = debrief;
+  const { score, rounds, final_batna, character_reservation_value: reservation } = debrief;
+  const beatReservation = typeof reservation === "number" && final_batna >= reservation;
   const polygonPoints = AXES.map((axis, i) => pointAt(i, AXES.length, score[axis.key] ?? 0).join(",")).join(" ");
 
   return (
@@ -38,6 +39,14 @@ export default function DebriefPanel({ debrief, characterName, onRestart }) {
           {characterName} · {rounds} раунд(ов) · итоговый баланс BATNA: {final_batna >= 0 ? "+" : ""}
           {final_batna.toFixed(2)}
         </p>
+        {typeof reservation === "number" && (
+          <p className="debrief-sub debrief-sub--reveal">
+            Раскрываем задним числом: реальный предел оппонента был {reservation >= 0 ? "+" : ""}
+            {reservation.toFixed(2)} — {beatReservation
+              ? "вы дожали его дальше этого предела, отличный результат."
+              : "вы остановились раньше его настоящего предела — было куда давить."}
+          </p>
+        )}
 
         <svg width={SIZE} height={SIZE} className="radar-svg">
           {[0.25, 0.5, 0.75, 1].map((f) => (

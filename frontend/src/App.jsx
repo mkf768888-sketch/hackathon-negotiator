@@ -5,6 +5,7 @@ import AdminConfigPanel from "./components/AdminConfigPanel";
 import ChatWindow from "./components/ChatWindow";
 import AvatarHead from "./components/AvatarHead";
 import AvatarVideo from "./components/AvatarVideo";
+import AvatarPhoto from "./components/AvatarPhoto";
 import BatnaGauge from "./components/BatnaGauge";
 import DebriefPanel from "./components/DebriefPanel";
 import AuthScreen from "./components/AuthScreen";
@@ -203,6 +204,8 @@ export default function App() {
       <aside className="side-panel">
         {import.meta.env.VITE_AVATAR_MODE === "video" ? (
           <AvatarVideo emotion={emotion} characterName={session.character_name} paused={paused} />
+        ) : import.meta.env.VITE_AVATAR_MODE === "photo" ? (
+          <AvatarPhoto emotion={emotion} characterName={session.character_name} paused={paused} />
         ) : (
           <AvatarHead
             emotion={emotion}

@@ -168,8 +168,37 @@
   background: #1a1a21;
 }
 
+.avatar-photo-base {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  animation: avatar-breathe 6s ease-in-out infinite;
+}
+
+.avatar-photo-flash {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: avatar-flash-in 0.18s ease-out;
+}
+
+@keyframes avatar-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.012); }
+}
+
+@keyframes avatar-flash-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 /* Пауза Лайтмана */
-.avatar-canvas--paused canvas {
+.avatar-canvas--paused canvas,
+.avatar-canvas--paused .avatar-photo-base,
+.avatar-canvas--paused .avatar-photo-flash {
   filter: saturate(0.6) brightness(0.85);
 }
 

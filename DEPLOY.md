@@ -12,7 +12,7 @@
    - `DEEPSEEK_API_KEY` — ключ от DeepSeek (уже есть в `backend/.env`).
    - `ANTHROPIC_API_KEY` — ключ от Anthropic, если решите его завести (см. память проекта — раньше сознательно отказались из-за цены).
    - `FRONTEND_ORIGIN` — сюда позже впишете адрес сайта с Vercel (шаг 2), например `https://ваш-проект.vercel.app`.
-   - `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET` — только если делаете аккаунты компаний (шаг 3), иначе оставить пустыми.
+   - `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` — только если делаете аккаунты компаний (шаг 3), иначе оставить пустыми.
 4. Нажать Deploy. Через пару минут появится адрес вида `https://hackathon-negotiator-backend.onrender.com` — это и есть бэкенд.
 
 ## 2. Сайт на Vercel
@@ -36,12 +36,12 @@
 
 1. Зайти на [supabase.com](https://supabase.com), создать новый проект (бесплатный tier достаточно).
 2. В Supabase Dashboard → SQL Editor → вставить содержимое файла `backend/supabase/migrations/0001_init.sql` целиком → Run. Это создаст таблицы для компаний, сотрудников и истории сессий.
-3. В Supabase Dashboard → Project Settings → API найти три значения и вписать их в Render/Vercel (шаги 1-2):
+3. В Supabase Dashboard → Project Settings → API найти значения и вписать их в Render/Vercel (шаги 1-2):
    - `Project URL` → это `SUPABASE_URL` (Render) и `VITE_SUPABASE_URL` (Vercel).
-   - `anon public` ключ → это `VITE_SUPABASE_ANON_KEY` (Vercel).
-   - `service_role` ключ (секретный, не путать с anon!) → это `SUPABASE_SERVICE_ROLE_KEY` (Render).
-4. В Project Settings → API → JWT Settings найти `JWT Secret` → это `SUPABASE_JWT_SECRET` (Render).
-5. После того как все четыре значения вписаны и оба сервиса передеплоены — на сайте появится экран входа с кнопкой «Зарегистрироваться» (для компании) и «Пропустить и пройти как гость» (демо-режим без изменений).
+   - публичный ключ (`anon public` / новый формат `sb_publishable_...`) → это `VITE_SUPABASE_ANON_KEY` (Vercel).
+   - секретный ключ (`service_role` / новый формат `sb_secret_...`, не путать с публичным!) → это `SUPABASE_SERVICE_ROLE_KEY` (Render).
+4. `SUPABASE_JWT_SECRET` больше не нужен — бэкенд проверяет подпись токена через публичный JWKS проекта (`{SUPABASE_URL}/auth/v1/.well-known/jwks.json`), это работает и со старыми, и с новыми (асимметричными) ключами Supabase без дополнительной настройки.
+5. После того как все значения вписаны и оба сервиса передеплоены — на сайте появится экран входа с кнопкой «Зарегистрироваться» (для компании) и «Пропустить и пройти как гость» (демо-режим без изменений).
 
 ## 4. Видео-лицо аватара через HeyGen (опционально)
 

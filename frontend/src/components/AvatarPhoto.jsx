@@ -21,6 +21,7 @@ const FLASH_MIN_MS = 900;
 export default function AvatarPhoto({ emotion, characterName, paused }) {
   const [flashKey, setFlashKey] = useState(null);
   const [idleMissing, setIdleMissing] = useState(false);
+  const [idleLoaded, setIdleLoaded] = useState(false);
   const [brokenFlashes, setBrokenFlashes] = useState({});
   const flashTimer = useRef(null);
 
@@ -47,9 +48,15 @@ export default function AvatarPhoto({ emotion, characterName, paused }) {
           src={`${PHOTOS_BASE}/idle.jpg`}
           alt=""
           className="avatar-photo-base"
-          style={{ display: idleMissing ? "none" : "block" }}
+          style={{ display: idleMissing ? "none" : "block", opacity: idleLoaded ? 1 : 0 }}
+          onLoad={() => setIdleLoaded(true)}
           onError={() => setIdleMissing(true)}
         />
+        {!idleMissing && !idleLoaded && (
+          <div className="avatar-canvas-hint">
+            <span className="avatar-spinner" /> Загружаем портрет собеседника…
+          </div>
+        )}
         {!idleMissing && flashKey && (
           <img
             key={flashKey}

@@ -174,6 +174,23 @@
   object-fit: cover;
   display: block;
   animation: avatar-breathe 6s ease-in-out infinite;
+  transition: opacity 0.25s ease;
+}
+
+.avatar-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  border-top-color: var(--accent);
+  animation: avatar-spin 0.7s linear infinite;
+  margin-right: 8px;
+  vertical-align: -2px;
+}
+
+@keyframes avatar-spin {
+  to { transform: rotate(360deg); }
 }
 
 .avatar-photo-flash {
@@ -601,4 +618,60 @@
   padding: 12px 24px;
   font-weight: 600;
   cursor: pointer;
+}
+
+/* ─── Мобильная адаптация ───────────────────────────────────────── */
+
+@media (max-width: 680px) {
+  .select-screen {
+    padding: 32px 16px;
+  }
+
+  .select-screen h1 {
+    font-size: 22px;
+  }
+
+  .character-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .negotiation-screen {
+    display: flex;
+    flex-direction: column;
+    height: 100svh;
+    max-width: 100%;
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .side-panel {
+    flex: 0 0 auto;
+    gap: 12px;
+  }
+
+  .avatar-panel {
+    padding: 16px 12px;
+  }
+
+  .avatar-canvas {
+    max-width: 200px;
+    margin: 0 auto 12px;
+  }
+
+  .main-panel {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .debrief-overlay {
+    padding: 12px;
+  }
+
+  .debrief-card {
+    padding: 20px;
+  }
+
+  .debrief-columns {
+    grid-template-columns: 1fr;
+  }
 }

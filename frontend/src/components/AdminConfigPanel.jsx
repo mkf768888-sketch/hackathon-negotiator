@@ -50,6 +50,7 @@ export default function AdminConfigPanel({ onChange }) {
             Сфера и тема переговоров
             <input
               type="text"
+              maxLength={200}
               placeholder="например: продажа B2B-подписки, наём разработчика, аренда офиса"
               value={sphere}
               onChange={(e) => { setSphere(e.target.value); emit({ sphere: e.target.value }); }}
@@ -72,6 +73,7 @@ export default function AdminConfigPanel({ onChange }) {
             Тон собеседника
             <input
               type="text"
+              maxLength={200}
               placeholder="например: холодный и формальный, дружелюбный, раздражённый"
               value={tone}
               onChange={(e) => { setTone(e.target.value); emit({ tone: e.target.value }); }}
@@ -82,6 +84,7 @@ export default function AdminConfigPanel({ onChange }) {
             Роль оппонента
             <input
               type="text"
+              maxLength={200}
               placeholder="например: закупщик крупной сети, HR-директор, арендодатель"
               value={opponentRole}
               onChange={(e) => { setOpponentRole(e.target.value); emit({ opponent_role: e.target.value }); }}
@@ -91,6 +94,7 @@ export default function AdminConfigPanel({ onChange }) {
           <label>
             Явные цели оппонента
             <textarea
+              maxLength={500}
               placeholder="например: снизить цену минимум на 10% и получить отсрочку платежа"
               value={opponentGoals}
               onChange={(e) => { setOpponentGoals(e.target.value); emit({ opponent_goals: e.target.value }); }}

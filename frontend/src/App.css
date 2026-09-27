@@ -37,6 +37,17 @@
   transform: translateY(-2px);
 }
 
+.character-card:disabled {
+  cursor: default;
+  opacity: 0.5;
+  transform: none;
+}
+
+.character-card--starting {
+  opacity: 1;
+  border-color: var(--accent);
+}
+
 .character-name {
   font-weight: 600;
   margin-bottom: 6px;

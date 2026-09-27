@@ -13,7 +13,10 @@ function pickRuVoice() {
   if (!speechOutputSupported) return null;
   if (cachedRuVoice) return cachedRuVoice;
   const voices = window.speechSynthesis.getVoices();
-  cachedRuVoice = voices.find((v) => v.lang?.toLowerCase().startsWith("ru")) || null;
+  const ruVoices = voices.filter((v) => v.lang?.toLowerCase().startsWith("ru"));
+  // localService:false — облачный голос (например, "Google русский" в Chrome), звучит заметно
+  // естественнее локального синтезатора ОС. Берём его, если браузер такой отдаёт.
+  cachedRuVoice = ruVoices.find((v) => v.localService === false) || ruVoices[0] || null;
   return cachedRuVoice;
 }
 if (speechOutputSupported) {
@@ -22,14 +25,28 @@ if (speechOutputSupported) {
   };
 }
 
-export function speak(text) {
+// Стабильный хэш строки → небольшая, но повторяемая для одного персонажа вариация
+// pitch/rate, чтобы 9 разных оппонентов не звучали одним и тем же голосом-роботом.
+function hashString(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+export function speak(text, characterKey) {
   if (!speechOutputSupported || !text) return;
   window.speechSynthesis.cancel(); // не даём репликам накладываться друг на друга
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang = "ru-RU";
-  utter.rate = 1.0;
   const voice = pickRuVoice();
   if (voice) utter.voice = voice;
+  if (characterKey) {
+    const h = hashString(characterKey);
+    utter.rate = 0.92 + (h % 10) / 50; // ~0.92–1.12
+    utter.pitch = 0.88 + ((h >> 4) % 10) / 40; // ~0.88–1.13
+  } else {
+    utter.rate = 1.0;
+  }
   window.speechSynthesis.speak(utter);
 }
 

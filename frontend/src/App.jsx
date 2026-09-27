@@ -18,6 +18,7 @@ export default function App() {
   const [characters, setCharacters] = useState([]);
   const [loadingCharacters, setLoadingCharacters] = useState(true);
   const [loadError, setLoadError] = useState(null);
+  const [startingKey, setStartingKey] = useState(null);
 
   // Аккаунты компаний — активны только если заданы VITE_SUPABASE_* (см. supabaseClient.js).
   // Без них authSession всегда null, authSkipped неважен, и ниже всё ведёт себя
@@ -73,12 +74,13 @@ export default function App() {
 
   async function handleSelect(characterKey) {
     setLoadError(null);
+    setStartingKey(characterKey);
     try {
       const data = await startSession(characterKey, adminContext, authSession?.access_token);
       setSession(data);
       setEmotion(data.opening.hidden_emotion);
       setBatna(data.opening.batna_cumulative);
-      if (voiceOnRef.current) speak(data.opening.text);
+      if (voiceOnRef.current) speak(data.opening.text, data.character);
       setMessages([
         {
           role: "opponent",
@@ -96,7 +98,7 @@ export default function App() {
           setWaiting(false);
           setEmotion(turn.hidden_emotion);
           setBatna(turn.batna_cumulative);
-          if (voiceOnRef.current) speak(turn.text);
+          if (voiceOnRef.current) speak(turn.text, data.character);
           setMessages((prev) => {
             // player_tactic описывает реплику ИГРОКА, которая предшествовала этому ходу —
             // привязываем её к последнему сообщению игрока, а не к новой реплике оппонента.
@@ -122,6 +124,8 @@ export default function App() {
       connRef.current = conn;
     } catch (e) {
       setLoadError(e.message);
+    } finally {
+      setStartingKey(null);
     }
   }
 
@@ -193,6 +197,7 @@ export default function App() {
           characters={characters}
           loading={loadingCharacters}
           error={loadError}
+          startingKey={startingKey}
           onSelect={handleSelect}
         />
       </>

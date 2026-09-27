@@ -8,15 +8,23 @@ const SpeechRecognitionCtor =
 export const speechInputSupported = !!SpeechRecognitionCtor;
 export const speechOutputSupported = typeof window !== "undefined" && !!window.speechSynthesis;
 
+// Web Speech API не даёт пол голоса как поле — определяем по известным именам мужских
+// русских голосов у основных движков (macOS "Yuri", Windows/Edge "Pavel"/"Dmitry" и т.п.).
+// Аватар — персонаж-мужчина, поэтому мужской голос предпочитаем, даже если он локальный,
+// а не облачный.
+const MALE_VOICE_HINTS = /yuri|pavel|dmitr|maxim|egor|nikolai|ruslan|vladimir|male/i;
+
 let cachedRuVoice = null;
 function pickRuVoice() {
   if (!speechOutputSupported) return null;
   if (cachedRuVoice) return cachedRuVoice;
   const voices = window.speechSynthesis.getVoices();
   const ruVoices = voices.filter((v) => v.lang?.toLowerCase().startsWith("ru"));
-  // localService:false — облачный голос (например, "Google русский" в Chrome), звучит заметно
-  // естественнее локального синтезатора ОС. Берём его, если браузер такой отдаёт.
-  cachedRuVoice = ruVoices.find((v) => v.localService === false) || ruVoices[0] || null;
+  const maleVoices = ruVoices.filter((v) => MALE_VOICE_HINTS.test(v.name));
+  const candidates = maleVoices.length ? maleVoices : ruVoices;
+  // Внутри отобранных: localService:false (облачный голос, например "Google русский" в
+  // Chrome) звучит заметно естественнее локального синтезатора ОС — берём его, если есть.
+  cachedRuVoice = candidates.find((v) => v.localService === false) || candidates[0] || null;
   return cachedRuVoice;
 }
 if (speechOutputSupported) {
@@ -43,7 +51,7 @@ export function speak(text, characterKey) {
   if (characterKey) {
     const h = hashString(characterKey);
     utter.rate = 0.92 + (h % 10) / 50; // ~0.92–1.12
-    utter.pitch = 0.88 + ((h >> 4) % 10) / 40; // ~0.88–1.13
+    utter.pitch = 0.82 + ((h >> 4) % 10) / 45; // ~0.82–1.02, не уводим тембр в женский диапазон
   } else {
     utter.rate = 1.0;
   }
